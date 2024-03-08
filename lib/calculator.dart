@@ -177,14 +177,62 @@ class _CalculatorState extends State<Calculator> {
         return;
       }
     }
+    if (isOperand(text)) {
+      // Check if the last character in userInput is an operand
+      if (userInput.isNotEmpty && isOperand(userInput[userInput.length - 1])) {
+        userInput = userInput.substring(0, userInput.length - 1);
+      }
+    }
     userInput = userInput + text;
   }
 
+  bool isOperand(String text) {
+    return text == "/" || text == "*" || text == "+" || text == "-";
+  }
+
+  bool isValidInput(String input) {
+    // Check if the last character in input is an operand or not
+    if (input.isNotEmpty && input[input.length - 1] == '*' ||
+        input[input.length - 1] == '/' ||
+        input[input.length - 1] == '+' ||
+        input[input.length - 1] == '-') {
+      return false;
+    }
+    return true;
+  }
+
   String calculate() {
-    
-      var exp = Parser().parse(userInput);
-      var evaluation = exp.evaluate(EvaluationType.REAL, ContextModel());
-      return evaluation.toString();
-    
+    try {
+      // Remove leading and trailing operators
+      userInput = userInput.replaceAll(RegExp(r'^[*/+|-]+'), '');
+      userInput = userInput.replaceAll(RegExp(r'[*/+|-]+$'), '');
+
+      // Split the expression by operators
+      List<String> operands = userInput.split(RegExp(r'[*/+|-]'));
+
+      // Split the expression by numbers
+      List<String> operators = userInput.split(RegExp(r'[0-9]'));
+      operators.removeWhere((element) => element.isEmpty);
+
+      // Initialize the result with the first operand
+      double result = double.parse(operands[0]);
+
+      // Iterate over the operators and operands and perform calculations
+      for (int i = 0; i < operators.length; i++) {
+        if (operators[i] == '+') {
+          result += double.parse(operands[i + 1]);
+        } else if (operators[i] == '-') {
+          result -= double.parse(operands[i + 1]);
+        } else if (operators[i] == '*') {
+          result *= double.parse(operands[i + 1]);
+        } else if (operators[i] == '/') {
+          result /= double.parse(operands[i + 1]);
+        }
+      }
+
+      return result.toString();
+    } catch (e) {
+      return "Error";
+    }
   }
 }
