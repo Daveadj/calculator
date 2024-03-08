@@ -181,12 +181,10 @@ class _CalculatorState extends State<Calculator> {
   }
 
   String calculate() {
-    try {
+    
       var exp = Parser().parse(userInput);
       var evaluation = exp.evaluate(EvaluationType.REAL, ContextModel());
       return evaluation.toString();
-    } catch (e) {
-      return "Error";
-    }
+    
   }
 }
