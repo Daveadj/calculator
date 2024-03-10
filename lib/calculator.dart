@@ -201,38 +201,27 @@ class _CalculatorState extends State<Calculator> {
     return true;
   }
 
-  String calculate() {
+   String calculate() {
     try {
-      // Remove leading and trailing operators
-      userInput = userInput.replaceAll(RegExp(r'^[*/+|-]+'), '');
-      userInput = userInput.replaceAll(RegExp(r'[*/+|-]+$'), '');
+      Parser p = Parser();
+      Expression exp = p.parse(userInput);
+      ContextModel cm = ContextModel();
+      double eval = exp.evaluate(EvaluationType.REAL, cm);
 
-      // Split the expression by operators
-      List<String> operands = userInput.split(RegExp(r'[*/+|-]'));
-
-      // Split the expression by numbers
-      List<String> operators = userInput.split(RegExp(r'[0-9]'));
-      operators.removeWhere((element) => element.isEmpty);
-
-      // Initialize the result with the first operand
-      double result = double.parse(operands[0]);
-
-      // Iterate over the operators and operands and perform calculations
-      for (int i = 0; i < operators.length; i++) {
-        if (operators[i] == '+') {
-          result += double.parse(operands[i + 1]);
-        } else if (operators[i] == '-') {
-          result -= double.parse(operands[i + 1]);
-        } else if (operators[i] == '*') {
-          result *= double.parse(operands[i + 1]);
-        } else if (operators[i] == '/') {
-          result /= double.parse(operands[i + 1]);
-        }
+      if (eval.isNaN || eval.isInfinite) {
+        return "0";
       }
 
-      return result.toString();
+      // Format to two decimal places if it's a decimal number
+      if (eval % 1 != 0) {
+        result = eval.toStringAsFixed(2);
+      } else {
+        result = eval.toInt().toString();
+      }
+
+      return result;
     } catch (e) {
-      return "Error";
+      return "";
     }
   }
 }
